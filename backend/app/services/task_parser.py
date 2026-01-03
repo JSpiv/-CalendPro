@@ -2,6 +2,7 @@
 Task line parser.
 
 Extracts task title and duration from a single line of text.
+Moved from app.core.parser to consolidate business logic in services.
 """
 
 import re

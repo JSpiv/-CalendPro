@@ -49,7 +49,10 @@ async def get_current_user(
             detail="Invalid user ID format",
         )
 
-    user = db.query(User).filter(User.id == user_id).first()
+    from sqlalchemy import select
+
+    stmt = select(User).where(User.id == user_id)
+    user = db.execute(stmt).scalar_one_or_none()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -16,6 +16,11 @@ services:
       # Backend uses synchronous SQLAlchemy (psycopg2). Keep this separate from
       # frontend Prisma env vars to avoid migrations fighting each other.
       BACKEND_DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/postgres
+
+      # Google OAuth - Get these from Google Cloud Console
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: http://localhost:8000/oauth/google/callback
     ports:
       - "8000:8000"
     depends_on:

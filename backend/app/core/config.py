@@ -7,6 +7,7 @@ Alembic migrations can read database settings from the same place.
 
 from functools import lru_cache
 import os
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -14,6 +15,11 @@ class Settings(BaseModel):
     """Runtime application settings."""
 
     database_url: str
+
+    # Google OAuth settings
+    google_client_id: Optional[str] = None
+    google_client_secret: Optional[str] = None
+    google_redirect_uri: Optional[str] = None
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -25,7 +31,13 @@ class Settings(BaseModel):
             raise RuntimeError(
                 "BACKEND_DATABASE_URL (or DATABASE_URL) environment variable is not set"
             )
-        return cls(database_url=database_url)
+
+        return cls(
+            database_url=database_url,
+            google_client_id=os.getenv("GOOGLE_CLIENT_ID"),
+            google_client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+            google_redirect_uri=os.getenv("GOOGLE_REDIRECT_URI"),
+        )
 
 
 @lru_cache(maxsize=1)
