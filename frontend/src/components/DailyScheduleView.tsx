@@ -45,9 +45,9 @@ export function DailyScheduleView({ events, date }: DailyScheduleViewProps) {
     const startMinutes = new Date(event.start_at).getMinutes();
     const endMinutes = new Date(event.end_at).getMinutes();
 
-    // Calculate position from 12 AM (hour 0)
-    const startPosition = startHour * 100 + (startMinutes / 60) * 100;
-    const duration = (endHour - startHour) * 100 + ((endMinutes - startMinutes) / 60) * 100;
+    // Calculate position from 12 AM (hour 0) - 20px per hour for very compact view
+    const startPosition = startHour * 20 + (startMinutes / 60) * 20;
+    const duration = (endHour - startHour) * 20 + ((endMinutes - startMinutes) / 60) * 20;
 
     return {
       top: `${startPosition}px`,
@@ -64,8 +64,8 @@ export function DailyScheduleView({ events, date }: DailyScheduleViewProps) {
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold">
+      <div className="mb-3">
+        <h2 className="text-xl font-semibold">
           {date.toLocaleDateString("en-US", {
             weekday: "short",
             month: "short",
@@ -82,11 +82,11 @@ export function DailyScheduleView({ events, date }: DailyScheduleViewProps) {
           {TIME_SLOTS.map((time, idx) => (
             <div
               key={time}
-              className="relative h-[100px] border-t border-white/20"
+              className="relative h-[20px] border-t border-white/20"
               style={{ borderTopStyle: idx === 0 ? 'none' : 'solid' }}
             >
               {/* Time label */}
-              <div className="absolute left-4 top-2 text-sm font-medium">
+              <div className="absolute left-2 top-0 text-[10px] font-medium leading-tight">
                 {time}
               </div>
 
@@ -99,19 +99,19 @@ export function DailyScheduleView({ events, date }: DailyScheduleViewProps) {
         </div>
 
         {/* Events overlay */}
-        <div className="absolute top-0 left-24 right-4 h-full pointer-events-none">
+        <div className="absolute top-0 left-16 right-2 h-full pointer-events-none">
           {eventsWithColors.map((event) => {
             const style = getEventStyle(event);
 
             return (
               <div
                 key={event.id}
-                className={`absolute left-0 right-0 ${event.color} rounded-md p-3 text-black pointer-events-auto`}
+                className={`absolute left-0 right-0 ${event.color} rounded p-0.5 text-black pointer-events-auto overflow-hidden`}
                 style={style}
               >
-                <div className="font-semibold text-sm">{event.title}</div>
+                <div className="font-semibold text-[10px] truncate leading-tight">{event.title}</div>
                 {event.location && (
-                  <div className="text-xs mt-1">{event.location}</div>
+                  <div className="text-[8px] truncate leading-tight">{event.location}</div>
                 )}
               </div>
             );

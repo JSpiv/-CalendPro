@@ -28,9 +28,12 @@ export default function CalendarPage() {
     setCheckingConnection(true);
     try {
       const accounts = await oauthAPI.getStatus();
-      setIsConnected(accounts && accounts.length > 0);
+      const connected = accounts && accounts.length > 0;
+      setIsConnected(connected);
+      console.log('Connection check:', connected ? 'Connected' : 'Not connected', accounts);
     } catch (err) {
       console.error('Error checking connection:', err);
+      // If check fails, assume not connected but don't break the UI
       setIsConnected(false);
     } finally {
       setCheckingConnection(false);
@@ -110,8 +113,22 @@ export default function CalendarPage() {
 
   // Load connection status and events on mount
   useEffect(() => {
+    // Check connection status (non-blocking)
     checkConnection();
+    // Fetch events
     fetchTodaysEvents();
+  }, []);
+
+  // Re-check connection after OAuth redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      // Just connected - check status and sync
+      setTimeout(() => {
+        checkConnection();
+        syncCalendars();
+      }, 500);
+    }
   }, []);
 
   return (
@@ -120,6 +137,14 @@ export default function CalendarPage() {
         <h1 className="text-3xl font-semibold tracking-tight">Calendar</h1>
 
         <div className="flex gap-2">
+          <Button
+            onClick={syncCalendars}
+            disabled={syncing}
+            variant="outline"
+          >
+            {syncing ? 'Syncing...' : 'Sync from Google'}
+          </Button>
+
           {!isConnected ? (
             <Button
               onClick={async () => {
@@ -139,23 +164,13 @@ export default function CalendarPage() {
               {checkingConnection ? 'Checking...' : 'Connect Google Calendar'}
             </Button>
           ) : (
-            <>
-              <Button
-                onClick={syncCalendars}
-                disabled={syncing}
-                variant="outline"
-              >
-                {syncing ? 'Syncing...' : 'Sync from Google'}
-              </Button>
-
-              <Button
-                onClick={disconnectGoogle}
-                variant="outline"
-                className="text-red-600 hover:text-red-700"
-              >
-                Disconnect
-              </Button>
-            </>
+            <Button
+              onClick={disconnectGoogle}
+              variant="outline"
+              className="text-red-600 hover:text-red-700"
+            >
+              Disconnect
+            </Button>
           )}
 
           <Button
